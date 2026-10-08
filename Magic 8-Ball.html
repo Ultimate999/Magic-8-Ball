@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#080a0f">
+<title>Eight — Ask the unknown</title>
+<style>
+:root{color-scheme:dark;--blue:#168bff;--cyan:#73d9ff}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f4f6fa;background:radial-gradient(ellipse at 50% 43%,#17202d 0%,#0c1018 37%,#06070b 78%);display:flex;align-items:center;justify-content:center;overscroll-behavior:none;touch-action:pan-y}
+.scene{position:relative;width:100%;height:100%;min-height:560px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 24px) 22px calc(env(safe-area-inset-bottom) + 24px);isolation:isolate}
+.ambient{position:absolute;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.ambient:before{content:"";position:absolute;width:78vw;height:78vw;max-width:650px;max-height:650px;left:50%;top:47%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(22,95,180,.11),transparent 68%);filter:blur(20px)}
+.header{position:absolute;top:calc(env(safe-area-inset-top) + 25px);text-align:center;letter-spacing:.22em;text-transform:uppercase;font-size:11px;color:#6f7a8b;font-weight:650}
+.header span{color:#dce8f8}
+.prompt{position:absolute;top:calc(env(safe-area-inset-top) + 76px);width:100%;padding:0 22px;text-align:center;transition:opacity .5s,transform .5s}
+.prompt h1{font-size:clamp(21px,5.5vw,28px);font-weight:450;letter-spacing:-.045em;margin:0 0 9px}
+.prompt p{font-size:13px;color:#8b95a5;margin:0;line-height:1.5}
+.stage{position:relative;width:min(82vw,390px);aspect-ratio:1;display:grid;place-items:center;margin-top:32px;perspective:900px;flex-shrink:0}
+.shadow{position:absolute;bottom:1%;width:72%;height:12%;border-radius:50%;background:#000;filter:blur(18px);opacity:.9;transform:translateY(22%)}
+.ball{position:relative;width:100%;height:100%;border-radius:50%;background:
+radial-gradient(ellipse at 30% 19%,rgba(255,255,255,.21) 0%,rgba(255,255,255,.07) 7%,transparent 20%),
+radial-gradient(ellipse at 73% 25%,rgba(255,255,255,.2) 0%,rgba(255,255,255,.035) 9%,transparent 19%),
+radial-gradient(ellipse at 48% 4%,#343b47 0%,#11151c 22%,#050609 54%,#10141c 72%,#020305 100%);
+box-shadow:inset -17px -23px 35px rgba(0,0,0,.9),inset 8px 7px 18px rgba(255,255,255,.1),0 22px 42px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.11);
+transform:rotateX(1deg);will-change:transform;transition:filter .4s}
+.ball:before{content:"";position:absolute;inset:1.2%;border-radius:50%;border:1px solid rgba(255,255,255,.09);box-shadow:inset 0 2px 3px rgba(255,255,255,.08),inset 0 -4px 7px #000}
+.ball:after{content:"";position:absolute;left:9%;top:7%;width:26%;height:7%;border-radius:50%;background:rgba(255,255,255,.08);filter:blur(9px);transform:rotate(-42deg)}
+.window-rim{position:absolute;width:54%;aspect-ratio:1;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(145deg,#05070b,#202938 18%,#020307 35%,#101621 66%,#000 82%);padding:4%;box-shadow:0 4px 10px #000,0 0 0 1px rgba(120,156,210,.16),inset 0 1px 2px rgba(255,255,255,.13);z-index:2}
+.window-glass{height:100%;width:100%;border-radius:50%;overflow:hidden;position:relative;background:radial-gradient(ellipse at 50% 60%,#071f65 0%,#031039 44%,#010611 80%);box-shadow:inset 0 0 20px #000,inset 0 0 3px 1px rgba(60,143,255,.55),0 0 14px rgba(0,57,255,.13)}
+.liquid{position:absolute;inset:0;background:
+radial-gradient(ellipse at 48% 62%,rgba(0,90,255,.82),transparent 51%),
+radial-gradient(ellipse at 53% 43%,rgba(0,39,175,.82),transparent 62%),
+linear-gradient(180deg,#020923 0%,#061a59 54%,#052a9d 100%);opacity:.92}
+.liquid:before{content:"";position:absolute;inset:-25%;background:repeating-radial-gradient(ellipse at 48% 52%,transparent 0 9px,rgba(58,151,255,.09) 10px 11px,transparent 12px 22px);animation:currents 9s linear infinite;opacity:.6}
+.liquid:after{content:"";position:absolute;left:-10%;top:13%;width:120%;height:30%;border-radius:50%;background:linear-gradient(180deg,rgba(88,188,255,.05),rgba(22,93,255,.15),transparent);filter:blur(8px)}
+.triangle{position:absolute;left:50%;top:51%;width:68%;height:70%;transform:translate(-50%,-47%);filter:drop-shadow(0 0 13px rgba(0,91,255,.55));opacity:.96}
+.triangle svg{width:100%;height:100%;display:block}
+.answer-clip{position:absolute;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center;clip-path:inset(100% 0 0 0);transition:clip-path 2.1s cubic-bezier(.22,.75,.2,1);z-index:4}
+.answer-clip.reveal{clip-path:inset(0 0 0 0)}
+.answer{position:relative;width:74%;text-align:center;color:#dffaff;text-transform:uppercase;font-size:clamp(10px,2.8vw,13px);font-weight:750;line-height:1.25;letter-spacing:.035em;text-shadow:0 0 7px rgba(111,226,255,.9),0 0 18px rgba(16,130,255,.8);transform:translateY(25px);transition:transform 2.1s cubic-bezier(.22,.75,.2,1)}
+.reveal .answer{transform:translateY(0)}
+.surface-glint{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.06) 43%,transparent 53%);z-index:5}
+.bubbles{position:absolute;inset:0;z-index:3;opacity:.5;pointer-events:none}
+.bubble{position:absolute;border:1px solid rgba(114,195,255,.35);border-radius:50%;background:rgba(35,111,255,.09);animation:bubbleRise 5s linear infinite}
+.bubble:nth-child(1){width:4px;height:4px;left:26%;bottom:17%;animation-delay:-1s}
+.bubble:nth-child(2){width:6px;height:6px;left:68%;bottom:23%;animation-delay:-3s}
+.bubble:nth-child(3){width:3px;height:3px;left:58%;bottom:11%;animation-delay:-2s}
+.bubble:nth-child(4){width:5px;height:5px;left:37%;bottom:29%;animation-delay:-4s}
+.ball.shaking{animation:shake .75s cubic-bezier(.36,.07,.19,.97) both}
+.ball.shaking .liquid{animation:slosh .75s ease-in-out}
+@keyframes shake{0%,100%{transform:translate3d(0,0,0) rotate(0)}12%{transform:translate3d(-5px,2px,0) rotate(-2deg)}25%{transform:translate3d(6px,-3px,0) rotate(2.5deg)}38%{transform:translate3d(-7px,1px,0) rotate(-3deg)}51%{transform:translate3d(5px,2px,0) rotate(2deg)}64%{transform:translate3d(-3px,-2px,0) rotate(-1.4deg)}78%{transform:translate3d(2px,1px,0) rotate(.7deg)}}
+@keyframes slosh{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(5px) rotate(4deg)}60%{transform:translateY(-4px) rotate(-3deg)}}
+@keyframes currents{to{transform:rotate(360deg)}}
+@keyframes bubbleRise{0%{transform:translateY(0) scale(.8);opacity:0}20%{opacity:.9}100%{transform:translateY(-100px) scale(1.2);opacity:0}}
+.controls{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 48px);width:100%;display:flex;flex-direction:column;align-items:center;gap:13px}
+.shake-btn{border:1px solid rgba(255,255,255,.16);background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.045));color:#f4f7fb;border-radius:999px;min-width:176px;padding:15px 23px;font:inherit;font-size:13px;letter-spacing:.02em;box-shadow:0 8px 26px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;transition:transform .2s,border-color .2s,background .2s}
+.shake-btn:active{transform:scale(.97);background:rgba(38,112,235,.2)}
+.subhint{font-size:11px;color:#626e7e;letter-spacing:.025em;text-align:center;max-width:280px;line-height:1.5}
+.status{height:14px;font-size:10px;color:#687789;letter-spacing:.1em;text-transform:uppercase}
+.footer{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 14px);font-size:9px;letter-spacing:.22em;color:#3f4a59;text-transform:uppercase}
+.scene.thinking .prompt{opacity:.45;transform:translateY(-4px)}
+.scene.thinking .ball{filter:brightness(1.12)}
+@media(min-height:800px){.stage{width:min(78vw,420px);margin-top:45px}.controls{bottom:calc(env(safe-area-inset-bottom) + 65px)}}
+@media(max-height:650px){.scene{min-height:0;padding-top:60px;padding-bottom:60px}.header{top:12px}.prompt{top:48px}.prompt h1{font-size:20px}.prompt p{font-size:11px}.stage{width:min(57vh,310px);margin-top:36px}.controls{bottom:40px;gap:8px}.shake-btn{padding:11px 20px}.footer{display:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="scene" id="scene">
+  <div class="ambient"></div>
+  <div class="header"><span>EIGHT</span> / THE ORACLE</div>
+  <section class="prompt">
+    <h1 id="headline">Ask a question.</h1>
+    <p id="instruction">Hold it in your mind, then shake the ball.</p>
+  </section>
+  <div class="stage" aria-label="A glossy black fortune-telling ball with a blue liquid window">
+    <div class="shadow"></div>
+    <div class="ball" id="ball">
+      <div class="window-rim">
+        <div class="window-glass">
+          <div class="liquid"></div>
+          <div class="triangle">
+            <svg viewBox="0 0 200 210" aria-hidden="true">
+              <defs>
+                <linearGradient id="triFill" x1="0" y1="0" x2=".25" y2="1">
+                  <stop offset="0" stop-color="#075dff" stop-opacity=".85"/>
+                  <stop offset=".55" stop-color="#003fe2" stop-opacity=".95"/>
+                  <stop offset="1" stop-color="#087bff" stop-opacity=".8"/>
+                </linearGradient>
+                <filter id="glow"><feGaussianBlur stdDeviation="5"/></filter>
+              </defs>
+              <path d="M100 12 Q106 10 111 20 L193 178 Q201 195 181 196 L19 196 Q0 195 9 177 L89 21 Q93 13 100 12Z" fill="#075dff" opacity=".55" filter="url(#glow)"/>
+              <path d="M100 12 Q106 10 111 20 L193 178 Q201 195 181 196 L19 196 Q0 195 9 177 L89 21 Q93 13 100 12Z" fill="url(#triFill)" stroke="#1678ff" stroke-opacity=".5" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="answer-clip" id="answerClip"><div class="answer" id="answer">It is certain</div></div>
+          <div class="bubbles"><i class="bubble"></i><i class="bubble"></i><i class="bubble"></i><i class="bubble"></i></div>
+          <div class="surface-glint"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="status" id="status" aria-live="polite">READY WHEN YOU ARE</div>
+    <button class="shake-btn" id="shakeButton" type="button">Shake the ball</button>
+    <div class="subhint" id="subhint">Or tap the ball to reveal your answer</div>
+  </div>
+  <div class="footer">A little mystery, wherever you are</div>
+</main>
+<script>
+(() => {
+  const scene = document.getElementById('scene');
+  const ball = document.getElementById('ball');
+  const answerClip = document.getElementById('answerClip');
+  const answer = document.getElementById('answer');
+  const button = document.getElementById('shakeButton');
+  const status = document.getElementById('status');
+  const headline = document.getElementById('headline');
+  const instruction = document.getElementById('instruction');
+  const subhint = document.getElementById('subhint');
+
+  const answers = [
+    'It is certain','It is decidedly so','Without a doubt','Yes — definitely',
+    'You may rely on it','As I see it, yes','Most likely','Outlook good',
+    'Signs point to yes','Absolutely','Reply hazy. Try again','Ask again later',
+    'Better not tell you now','Cannot predict now','Concentrate and ask again',
+    'Don’t count on it','My reply is no','Outlook not so good','Very doubtful','The signs say no'
+  ];
+  let busy = false, lastAnswer = '', lastMotionTime = 0, lastMagnitude = 0, motionArmed = false;
+  let permissionRequested = false, motionListenerAttached = false;
+  let shakeSamples = 0, shakeWindowStart = 0;
+
+  function chooseAnswer() {
+    let next;
+    do { next = answers[Math.floor(Math.random() * answers.length)]; } while (next === lastAnswer && answers.length > 1);
+    lastAnswer = next;
+    return next;
+  }
+
+  function reveal() {
+    if (busy) return;
+    busy = true;
+    scene.classList.add('thinking');
+    answerClip.classList.remove('reveal');
+    status.textContent = 'CONSULTING THE UNKNOWN';
+    headline.textContent = 'The answer is forming.';
+    instruction.textContent = 'Let the ripples settle…';
+    button.disabled = true;
+    button.textContent = 'One moment';
+    ball.classList.remove('shaking');
+    void ball.offsetWidth;
+    ball.classList.add('shaking');
+
+    // The liquid settles first; then the answer drifts upward into view.
+    window.setTimeout(() => {
+      answer.textContent = chooseAnswer();
+      answerClip.classList.add('reveal');
+    }, 520);
+
+    window.setTimeout(() => {
+      ball.classList.remove('shaking');
+      scene.classList.remove('thinking');
+      status.textContent = 'YOUR ANSWER';
+      headline.textContent = 'There it is.';
+      instruction.textContent = 'Take what you need from it.';
+      button.disabled = false;
+      button.textContent = 'Ask again';
+      subhint.textContent = 'Shake again or tap the ball for another answer';
+      busy = false;
+    }, 2750);
+  }
+
+  async function enableMotion() {
+    if (motionListenerAttached) return true;
+    if (!('DeviceMotionEvent' in window)) {
+      status.textContent = 'MOTION SENSOR NOT AVAILABLE';
+      subhint.textContent = 'Tap “Shake the ball” to reveal an answer';
+      return false;
+    }
+    // iOS 13+ requires permission from a direct user gesture.
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      try {
+        const permission = await DeviceMotionEvent.requestPermission();
+        if (permission !== 'granted') {
+          status.textContent = 'MOTION ACCESS NOT ENABLED';
+          subhint.textContent = 'You can still tap to reveal an answer';
+          return false;
+        }
+      } catch (e) {
+        status.textContent = 'MOTION ACCESS UNAVAILABLE';
+        subhint.textContent = 'You can still tap to reveal an answer';
+        return false;
+      }
+    }
+    window.addEventListener('devicemotion', onMotion, {passive:true});
+    motionListenerAttached = true;
+    motionArmed = true;
+    status.textContent = 'SHAKE DETECTOR READY';
+    subhint.textContent = 'Give your phone a firm shake to reveal the answer';
+    return true;
+  }
+
+  function onMotion(event) {
+    if (busy) return;
+    const a = event.accelerationIncludingGravity || event.acceleration;
+    if (!a) return;
+    const x = a.x || 0, y = a.y || 0, z = a.z || 0;
+    const magnitude = Math.sqrt(x*x + y*y + z*z);
+    const now = Date.now();
+    const change = Math.abs(magnitude - lastMagnitude);
+    lastMagnitude = magnitude;
+
+    // Require a short burst of movement so normal hand motion won't trigger it.
+    if (change > 12 || magnitude > 25) {
+      if (!shakeWindowStart || now - shakeWindowStart > 900) {
+        shakeWindowStart = now;
+        shakeSamples = 0;
+      }
+      shakeSamples++;
+      lastMotionTime = now;
+      if (shakeSamples >= 2 && now - shakeWindowStart < 900) {
+        shakeSamples = 0;
+        shakeWindowStart = 0;
+        reveal();
+      }
+    } else if (now - lastMotionTime > 900) {
+      shakeSamples = 0;
+      shakeWindowStart = 0;
+    }
+  }
+
+  button.addEventListener('click', async () => {
+    if (busy) return;
+    if (!motionArmed && !permissionRequested) {
+      permissionRequested = true;
+      await enableMotion();
+    }
+    reveal();
+  });
+
+  // Tapping the ball always works, even if motion permission is declined.
+  ball.addEventListener('click', () => reveal());
+
+  // On browsers that don't require a permission prompt, attempt to enable
+  // the sensor after the first explicit interaction only.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      shakeSamples = 0;
+      shakeWindowStart = 0;
+    }
+  });
+})();
+</script>
+</body>
+</html>
